@@ -10,18 +10,19 @@ var app = express();
 app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
-    var todo = new Todo({
-        text: req.body.text
-    });
-    
-    console.log(todo);
-    todo.save().then((doc) => {
-        res.send(doc)
-    }, (e) => {
-        res.status(400).send(e)
-    });
+  var todo = new Todo({
+    text: req.body.text
+  });
+
+  todo.save().then((doc) => {
+    res.send(doc);
+  }, (e) => {
+    res.status(400).send(e);
+  });
 });
 
 app.listen(8080, () => {
     console.log('Listening to port 8080.')
 });
+
+module.exports = {app};
