@@ -3,6 +3,7 @@ const request = require('supertest');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {User} = require('./../models/user');
 const {ObjectId} = require('mongodb');
 const {todos, populateTodos, users, populateUsers} = require('./seed')
 
@@ -178,13 +179,58 @@ describe('GET /users/me', () => {
             .end(done);
     });
     
-    // it('should return 401 if not authenticated', (done) => {
-    //     request(app)
-    //         .get('/users/me')
-    //         .expect(401)
-    //         .expect((res) => {
-    //             expect(res.body).toEqual({})
-    //         })
-    //         .end(done)
-    // });
+    it('should return 401 if not authenticated', (done) => {
+        request(app)
+            .get('/users/me')
+            .expect(401)
+            .expect((res) => {
+                expect(res.body).toEqual({})
+            })
+            .end(done)
+    });
+});
+
+describe('POST /users', () => {
+    
+    it('should create a user', (done) => {
+        var email = 'example@example.com';
+        var password = 'exampleUniquePassword';
+        
+        request(app)
+            .post('/users')
+            .send({email, password})
+            .expect(200)
+            .expect((res) => {
+                expect(res.header['x-auth']).toExist();
+                expect(res.body._id).toExist();
+                expect(res.body.email).toBe(email);
+            })
+            .end((err) => {
+                if (err) { return done(err) };
+                
+                User.findOne({email}).then((user) => {
+                    expect(user).toExist();
+                    expect(user.password).toNotBe(password);
+                    done();
+                });
+            })
+    });
+    
+    it('should return validation errors if request invalid', (done) => {
+        var invalidEmail = 'invalid';
+        request(app)
+            .post('/users')
+            .send({invalidEmail})
+            .expect(400)
+            .end(done)
+    });
+    
+    it('should not create user if email already in use', (done) => {
+
+        request(app)
+            .post('/users')
+            .send({email: users[0].email, password: '12345678'})
+            .expect(400)
+            .end(done);
+    });
 });
