@@ -61,7 +61,7 @@ app.delete('/todos/:id', authenticate, (req, res) => {
   
   if (!ObjectId.isValid(id)) {
     return res.status(404).send();
-  };
+  }
   
   Todo.findOneAndRemove({
     _id: id,
@@ -69,7 +69,7 @@ app.delete('/todos/:id', authenticate, (req, res) => {
   }).then((todo) => {
     if (!todo) {
       return res.status(404).send();
-    };
+    }
     res.send({todo});
   }, (e) => res.status(400).send());
 });
@@ -80,14 +80,14 @@ app.patch('/todos/:id', authenticate, (req, res) => {
   
   if (!ObjectId.isValid(id)) {
     return res.status(404).send();
-  };
+  }
   
   if (_.isBoolean(body.completed) && body.completed) {
     body.completedAt = new Date().getTime();
   } else {
     body.completed = false;
     body.completedAt = null;
-  };
+  }
   
   Todo.findOneAndUpdate({
     _id: id,
@@ -95,9 +95,9 @@ app.patch('/todos/:id', authenticate, (req, res) => {
   }, {$set: body}, {new: true}).then((todo) => {
     if (!todo) {
       return res.status(404).send();
-    };
-    res.send({todo})
-  }).catch((e) => res.status(400).send())
+    }
+    res.send({todo});
+  }).catch((e) => res.status(400).send());
 });
 
 app.post('/users', (req, res) => {
@@ -109,6 +109,7 @@ app.post('/users', (req, res) => {
   }).then((token) => {
     res.header('x-auth', token).send(user);
   }).catch((e) => {
+    console.log(e);
     res.status(400).send(e);
   });
 });
@@ -133,7 +134,7 @@ app.delete('/users/me/token', authenticate, (req, res) => {
   req.user.removeToken(req.token).then(() => {
     res.status(200).send();
   }, (e) => {
-    res.status(400).send()
+    res.status(400).send();
   });
 });
 

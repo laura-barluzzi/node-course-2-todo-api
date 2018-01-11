@@ -1,0 +1,12 @@
+{
+    "test": {
+        "PORT": 8080,
+        "MONGODB_URI": "/TodoAppTest",
+        "JWT_SECRET": "DFADF7DYFDBK3J439Hjdkfudhfehfe8eefheuf"
+    },
+    "development": {
+        "PORT": 8080,
+        "MONGODB_URI": "/TodoApp",
+        "JWT_SECRET": "DHFUDFHD7s7dfgd7fhdi339e8hd5d6fd5f5e4r"
+    }
+}

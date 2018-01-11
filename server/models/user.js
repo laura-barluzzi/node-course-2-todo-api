@@ -32,7 +32,7 @@ var UserSchema = new mongoose.Schema({
       required: true
     }
   }]
-})
+});
 
 UserSchema.methods.toJSON = function () {
   var user = this;
@@ -43,7 +43,7 @@ UserSchema.methods.toJSON = function () {
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
-  var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
+  var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
 
   user.tokens.push({access, token});
 
@@ -54,7 +54,7 @@ UserSchema.methods.generateAuthToken = function () {
 
 UserSchema.methods.removeToken = function (token) {
   var user = this;
-  
+
   return user.update({
     $pull: {
       tokens: {token}
@@ -67,7 +67,7 @@ UserSchema.statics.findByToken = function (token) {
   var decoded;
 
   try {
-    decoded = jwt.verify(token, 'abc123');
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (e) {
     return Promise.reject();
   }
@@ -100,7 +100,9 @@ UserSchema.pre('save', function (next) {
 
   if (user.isModified('password')) {
     bcrypt.genSalt(10, (err, salt) => {
+      if (err) { next() }
       bcrypt.hash(user.password, salt, (err, hash) => {
+        if (err) { next() }
         user.password = hash;
         next();
       });
@@ -112,6 +114,4 @@ UserSchema.pre('save', function (next) {
 
 var User = mongoose.model('User', UserSchema);
 
-module.exports = {
-    User
-}
+module.exports = { User };
